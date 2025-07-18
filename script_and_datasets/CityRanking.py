@@ -23,16 +23,26 @@ scaled_df = pd.DataFrame(scaled_data, columns=columns_for_ranking)
 scaled_df['District'] = grouped_df['District']
 
 # Compute Liveability Score (lower total = higher rank)
-# You can customize this by applying weights to certain features if needed
 scaled_df['Liveability_Score'] = scaled_df[columns_for_ranking].sum(axis=1)
 
 # Rank cities: lower score = more affordable
 ranked_df = scaled_df.sort_values(by='Liveability_Score').reset_index(drop=True)
 
-# Save to CSV
-ranked_df[['District', 'Liveability_Score']].to_csv("City_Liveability_Ranking.csv", index=False)
+# --- Export Normalized Scores + Liveability Score ---
+normalized_output = scaled_df[['District'] + columns_for_ranking + ['Liveability_Score']]
+normalized_output.to_csv("City_Normalized_Scores.csv", index=False)
+print("\n✅ Normalized scores and Liveability Score saved to 'City_Normalized_Scores.csv'")
 
-# Plot Top 10 and Bottom 10 Cities
+# --- Export Final Rankings ---
+ranked_df[['District', 'Liveability_Score']].to_csv("City_Liveability_Ranking.csv", index=False)
+print("✅ Liveability Ranking saved to 'City_Liveability_Ranking.csv'")
+
+# --- Optional Console Preview ---
+print("\n🔍 Full Normalized Scores Table:")
+print(normalized_output.to_string(index=False))
+
+
+# --- Plot Top 10 and Bottom 10 Cities ---
 def plot_ranking(df, title, top=True):
     subset = df.head(10) if top else df.tail(10)
     plt.figure(figsize=(10, 6))
@@ -48,5 +58,3 @@ plot_ranking(ranked_df, "Top 10 Most Affordable Cities in Gujarat", top=True)
 
 # Plot bottom 10 least affordable cities to live
 plot_ranking(ranked_df, "Bottom 10 Least Affordable Cities in Gujarat", top=False)
-
-print("\n✅ Liveability Ranking saved to 'City_Liveability_Ranking.csv'")
